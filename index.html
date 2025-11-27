@@ -33,6 +33,74 @@
       padding: 100px 24px 60px;
     }
 
+    /* Навигация */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+      padding: 15px 0;
+      transition: all 0.3s ease;
+    }
+    
+    .navbar-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 30px;
+    }
+    
+    .nav-links a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-links a:hover {
+      color: #f1f5f9;
+      background: rgba(79, 70, 229, 0.1);
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 12px;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-links a:hover::after {
+      width: calc(100% - 24px);
+    }
+
     /* Стили для кастомного курсора */
     .cursor {
       position: fixed;
@@ -96,6 +164,7 @@
 
     section {
       margin-bottom: 80px;
+      scroll-margin-top: 100px; /* Отступ для навигации */
     }
     h2 {
       font-size: 2.2rem;
@@ -308,6 +377,25 @@
       transition: all 0.3s;
     }
 
+    /* Мобильное меню */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      cursor: none;
+    }
+    
+    .menu-toggle span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background-color: #cbd5e1;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
     /* Адаптивность */
     @media (max-width: 768px) {
       h1 {
@@ -332,6 +420,37 @@
         padding: 80px 16px 40px;
       }
       
+      /* Навигация для мобильных */
+      .navbar-container {
+        padding: 0 16px;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        gap: 15px;
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
       /* На мобильных устройствах возвращаем стандартный курсор */
       * {
         cursor: auto;
@@ -344,6 +463,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="logo">Дарья</div>
+      <ul class="nav-links">
+        <li><a href="#about">Обо мне</a></li>
+        <li><a href="#services">Направления</a></li>
+        <li><a href="#format">Формат</a></li>
+        <li><a href="#contact">Запись</a></li>
+      </ul>
+      <div class="menu-toggle" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
   <!-- Кастомный курсор -->
   <div class="cursor"></div>
   <div class="cursor-follower"></div>
@@ -356,7 +493,7 @@
       <div class="subtitle">Дарья — репетитор с 12-летним опытом, подготовка к ВПР, ОГЭ и уверенному владению языком</div>
     </section>
 
-    <section class="about">
+    <section class="about" id="about">
       <h2>Обо мне</h2>
       <p>Я — Дарья, профессиональный преподаватель английского языка с опытом работы более 12 лет. Мои ученики — школьники и подростки, которым важно не просто выучить язык, а уверенно использовать его в учёбе и жизни.</p>
       <ul class="about-list">
@@ -367,7 +504,7 @@
       </ul>
     </section>
 
-    <section class="services">
+    <section class="services" id="services">
       <h2>Направления работы</h2>
       <div class="cards">
         <div class="card">
@@ -388,7 +525,7 @@
       </div>
     </section>
 
-    <section class="format">
+    <section class="format" id="format">
       <h2>Формат занятий</h2>
       <div class="cards">
         <div class="card">
@@ -409,7 +546,7 @@
       </div>
     </section>
 
-    <div class="consent">
+    <div class="consent" id="contact">
       <label>
         <input type="checkbox" id="consentCheckbox">
         Я согласен(-на) на обработку персональных данных в соответствии с
@@ -568,6 +705,8 @@
     const consentCheckbox = document.getElementById('consentCheckbox');
     const bookBtn = document.getElementById('bookBtn');
     const emailReveal = document.getElementById('emailReveal');
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.querySelector('.nav-links');
 
     consentCheckbox.addEventListener('change', () => {
       bookBtn.disabled = !consentCheckbox.checked;
@@ -579,6 +718,18 @@
       setTimeout(() => {
         emailReveal.style.transform = 'scale(1)';
       }, 300);
+    });
+
+    // Мобильное меню
+    menuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    // Закрытие меню при клике на ссылку
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+      });
     });
   </script>
 </body>
