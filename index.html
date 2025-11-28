@@ -286,6 +286,58 @@
       line-height: 1.6;
     }
 
+    /* Секция микстуры */
+    #potion-section {
+      text-align: center;
+      margin: 50px 0;
+    }
+    #potionBottle {
+      width: 180px;
+      height: 240px;
+      margin: 0 auto 30px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 4px solid #4f46e5;
+      border-radius: 0 0 50% 50%;
+      position: relative;
+      overflow: hidden;
+    }
+    #liquid {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(to top, #10b981, #06b6d4);
+      transition: height 0.5s ease;
+    }
+    #bubbles {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #ingredients {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    #ingredients > div {
+      padding: 8px;
+      border-radius: 12px;
+      background: rgba(79, 70, 229, 0.1);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      cursor: pointer;
+    }
+    #ingredients > div:hover {
+      background: rgba(6, 182, 212, 0.2);
+    }
+    #ingredients > div.selected {
+      background: rgba(6, 182, 212, 0.3);
+      transform: scale(1.1);
+    }
+
     /* Согласие и кнопка */
     .consent {
       margin: 60px 0;
@@ -546,6 +598,31 @@
       </div>
     </section>
 
+<!-- Микстура удачи -->
+<section id="potion-section">
+  <h2>🧪 Свари микстуру удачи!</h2>
+  <p style="color: #cbd5e1; max-width: 600px; margin: 0 auto 20px;">
+    Выбери 3 ингредиента — и получи один из призов:
+  </p>
+  <ul id="prize-list" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 600px; margin: 0 auto 20px; list-style: none; padding: 0;">
+    <li style="background: rgba(79, 70, 229, 0.15); padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; color: #cbd5e1;">🎁 Бесплатный урок</li>
+    <li style="background: rgba(79, 70, 229, 0.15); padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; color: #cbd5e1;">📉 Скидка на первый месяц 10%</li>
+    <li style="background: rgba(79, 70, 229, 0.15); padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; color: #cbd5e1;">📁 Полезная ПДФка</li>
+    <li style="background: rgba(79, 70, 229, 0.15); padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; color: #cbd5e1;">👫 Подарок другу – урок вдвоём</li>
+    <li style="background: rgba(79, 70, 229, 0.15); padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; color: #cbd5e1;">🔍 Диагностика уровня</li>
+  </ul>
+
+  <div id="potionBottle">
+    <div id="liquid"></div>
+    <div id="bubbles"></div>
+  </div>
+
+  <div id="ingredients"></div>
+
+  <button id="mixBtn" class="btn" disabled>✨ Смешать микстуру!</button>
+  <div id="potionResult" style="margin-top: 24px; font-size: 1.3rem; font-weight: 600; color: #f1f5f9; min-height: 32px;"></div>
+</section>
+
     <div class="consent" id="contact">
       <label>
         <input type="checkbox" id="consentCheckbox">
@@ -563,6 +640,94 @@
   </div>
 
   <script>
+    // === МИКСТУРА УДАЧИ ===
+    const potionSection = document.getElementById('potion-section');
+    const potionBottle = document.getElementById('potionBottle');
+    const liquid = document.getElementById('liquid');
+    const bubblesContainer = document.getElementById('bubbles');
+    const ingredientsContainer = document.getElementById('ingredients');
+    const mixBtn = document.getElementById('mixBtn');
+    const potionResult = document.getElementById('potionResult');
+
+    const prizes = [
+      "Скидка на первый месяц 10%",
+      "Бесплатный урок",
+      "Полезная ПДФка",
+      "Подарок другу – урок вдвоём",
+      "Диагностика уровня"
+    ];
+
+    const ingredients = [
+      { emoji: "📚", name: "Textbook" },
+      { emoji: "💥", name: "Bug" },
+      { emoji: "🤖", name: "AI Assistant" },
+      { emoji: "🧂", name: "Salt" },
+      { emoji: "🔥", name: "Fire Grammar" },
+      { emoji: "🧪", name: "Experiment" },
+      { emoji: "📶", name: "Wi-Fi Signal" },
+      { emoji: "🐾", name: "Cat Bug" }
+    ];
+
+    let selected = [];
+    let hasMixed = localStorage.getItem('potionMixed') === 'true';
+
+    if (hasMixed) {
+      potionSection.style.display = 'none';
+    }
+
+    // Генерация ингредиентов
+    ingredients.forEach(ing => {
+      const el = document.createElement('div');
+      el.innerHTML = `<span style="font-size: 2rem;">${ing.emoji}</span>`;
+      el.title = ing.name;
+      el.addEventListener('click', () => {
+        if (selected.includes(ing) || selected.length >= 3) return;
+        selected.push(ing);
+        el.classList.add('selected');
+        liquid.style.height = (selected.length * 30) + '%';
+        if (selected.length === 3) mixBtn.disabled = false;
+      });
+      ingredientsContainer.appendChild(el);
+    });
+
+    // Смешать
+    mixBtn.addEventListener('click', () => {
+      if (hasMixed) return;
+      hasMixed = true;
+      localStorage.setItem('potionMixed', 'true');
+
+      // Анимация бурления
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+          const bubble = document.createElement('div');
+          bubble.style.position = 'absolute';
+          bubble.style.bottom = '0';
+          bubble.style.left = (20 + Math.random() * 60) + '%';
+          bubble.style.width = '6px';
+          bubble.style.height = '6px';
+          bubble.style.backgroundColor = '#06b6d4';
+          bubble.style.borderRadius = '50%';
+          bubble.style.opacity = '0';
+          bubblesContainer.appendChild(bubble);
+          bubble.animate([
+            { bottom: '0', opacity: 1 },
+            { bottom: '100%', opacity: 0 }
+          ], {
+            duration: 1500 + Math.random() * 1000,
+            easing: 'cubic-bezier(0.2, 0.8, 0.6, 1)'
+          });
+        }, i * 200);
+      }
+
+      mixBtn.disabled = true;
+      setTimeout(() => {
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        potionResult.innerHTML = `✨ Твоя микстура готова!<br><strong>${prize}</strong>`;
+        mixBtn.textContent = '✅ Готово!';
+      }, 3000);
+    });
+
+    // === ОСТАЛЬНОЙ КОД САЙТА (без изменений) ===
     // Анимированный фон с частицами
     const canvas = document.getElementById('bg');
     const ctx = canvas.getContext('2d');
@@ -626,9 +791,8 @@
     const cursor = document.querySelector('.cursor');
     const follower = document.querySelector('.cursor-follower');
     const trailElements = [];
-    const trailCount = 10; // Количество элементов в следе
+    const trailCount = 10;
     
-    // Создаем элементы следа
     for (let i = 0; i < trailCount; i++) {
       const trail = document.createElement('div');
       trail.classList.add('cursor-trail');
@@ -637,7 +801,7 @@
         element: trail,
         x: 0,
         y: 0,
-        delay: i * 3 // Задержка для создания эффекта следа
+        delay: i * 3
       });
     }
     
@@ -646,27 +810,21 @@
     let followerX = 0;
     let followerY = 0;
     
-    // Обновление позиции курсора
     function updateCursor() {
-      // Основной курсор
       cursor.style.left = mouseX + 'px';
       cursor.style.top = mouseY + 'px';
       
-      // Внешний круг с задержкой
       followerX += (mouseX - followerX) * 0.1;
       followerY += (mouseY - followerY) * 0.1;
       follower.style.left = followerX + 'px';
       follower.style.top = followerY + 'px';
       
-      // Элементы следа
       trailElements.forEach((trail, index) => {
         setTimeout(() => {
           trail.x += (mouseX - trail.x) * 0.2;
           trail.y += (mouseY - trail.y) * 0.2;
           trail.element.style.left = trail.x + 'px';
           trail.element.style.top = trail.y + 'px';
-          
-          // Прозрачность уменьшается для элементов дальше от курсора
           const opacity = 1 - (index / trailCount);
           trail.element.style.opacity = opacity.toString();
         }, trail.delay);
@@ -675,13 +833,11 @@
       requestAnimationFrame(updateCursor);
     }
     
-    // Отслеживание движения мыши
     document.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     });
     
-    // Эффекты при наведении на интерактивные элементы
     const interactiveElements = document.querySelectorAll('a, button, .card, input');
     
     interactiveElements.forEach(el => {
@@ -698,7 +854,6 @@
       });
     });
     
-    // Запуск анимации курсора
     updateCursor();
 
     // Остальной функционал сайта
@@ -720,12 +875,10 @@
       }, 300);
     });
 
-    // Мобильное меню
     menuToggle.addEventListener('click', () => {
       navLinks.classList.toggle('active');
     });
 
-    // Закрытие меню при клике на ссылку
     document.querySelectorAll('.nav-links a').forEach(link => {
       link.addEventListener('click', () => {
         navLinks.classList.remove('active');
@@ -734,3 +887,4 @@
   </script>
 </body>
 </html>
+
